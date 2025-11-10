@@ -1,0 +1,26 @@
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Dependency directories
+node_modules/
+
+# jj version control files
+/.jj/
+
+# Tool-specific directories and files
+claude-code/
+.claude-code/
+gemini-cli/
+.gemini-cli/
+
+# AMP and build artifacts
+.amp/
+build/
+dist/
