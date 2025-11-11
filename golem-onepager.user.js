@@ -680,7 +680,7 @@ ${headExtras || ''}
    */
   function init() {
     // Inject all styles
-    Object.values(STYLES).forEach(style => GM_addStyle(style));
+    [STYLES.MERGE_BUTTON, STYLES.MERGED_CONTENT, STYLES.INFO_POPUP, STYLES.SETTINGS_MENU].forEach(style => GM_addStyle(style));
 
     const buttons = [
       { text: 'Merge pages', bottom: 18, action: () => mergePages({}) },
