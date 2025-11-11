@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Golem.de: Article Merger
 // @namespace    https://github.com/mndfcked/golem-de-merger-userscript
-// @version      1.0.0
+// @version      1.0.1
 // @description  Merges paginated Golem.de articles into a single page for easier reading. Supports merging in-place, opening in a new tab, or sending to Readwise.
 // @author       Joern D.
 // @license      MIT
@@ -679,6 +679,11 @@ ${headExtras || ''}
    * Initializes the UI and sets up event listeners.
    */
   function init() {
+    // Don't run on pages without pagination
+    if (!q(document, PAGINATION_LIST_SELECTOR)) {
+      return;
+    }
+
     // Inject all styles
     [STYLES.MERGE_BUTTON, STYLES.MERGED_CONTENT, STYLES.INFO_POPUP, STYLES.SETTINGS_MENU].forEach(style => GM_addStyle(style));
 

@@ -11,7 +11,7 @@ A userscript that enhances [Golem.de](https://www.golem.de/) by merging its pagi
   - **In-place**: Merges content directly into the current page.
   - **New Tab**: Opens the fully merged article in a clean, reader-friendly new tab.
   - **Readwise**: Sends the complete article directly to your [Readwise](https://readwise.io/) account for archiving and review (requires an access token).
-- **Smart Page Detection**: Uses an improved algorithm to correctly sort pages and avoid confusing article IDs with page numbers.
+- **Intelligent Activation**: Only activates on articles detected to have multiple pages, preventing unnecessary UI elements on single-page content.
 - **Content Cleanup**: Removes ads, social media buttons, and other non-essential elements from the merged content.
 - **Settings Menu**: A simple UI to manage your Readwise token.
 - **Auto-Update**: The script can automatically update itself if you install it from the GitHub URL.
@@ -29,7 +29,7 @@ A userscript that enhances [Golem.de](https://www.golem.de/) by merging its pagi
 
 ## Usage
 
-Once installed, navigate to any multi-page article on `golem.de`. A set of buttons will appear at the bottom-right of the page:
+Once installed, navigate to any multi-page article on `golem.de`. A set of buttons will appear at the bottom-right of the page *only if the article is detected to have multiple pages*:
 
 - **Merge pages**: Merges the article content directly into the current page.
 - **Merge → new tab**: Opens the complete, cleaned-up article in a new browser tab.
