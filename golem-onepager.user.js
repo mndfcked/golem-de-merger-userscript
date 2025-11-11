@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Golem.de: Article Merger
 // @namespace    https://github.com/mndfcked/golem-de-merger-userscript
-// @version      1.0.1
-// @description  Merges paginated Golem.de articles into a single page for easier reading. Supports merging in-place, opening in a new tab, or sending to Readwise.
+// @version      1.1.0
+// @description  Merges paginated Golem.de articles into a single page for easier reading. Supports merging in-place, opening in a new tab (with dark mode and a 3-state theme toggle), or sending to Readwise.
 // @author       Joern D.
 // @license      MIT
 // @match        https://www.golem.de/news/*
@@ -89,10 +89,45 @@
       }
     `,
     NEW_TAB_VIEW: `
-      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; margin: 20px; color: #222; }
-      article { max-width: 900px; margin: 0 auto; }
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; margin: 20px; color: #222; transition: background-color 0.3s, color 0.3s; }
+      article { max-width: 900px; margin: 0 auto; padding: 2em; border-radius: 8px; border: 1px solid #ddd; transition: background-color 0.3s, border-color 0.3s; }
       h1 { font-size: 2em; margin-bottom: 0.5em; }
       img, video { max-width: 100%; height: auto; }
+    `,
+    DARK_MODE: `
+      body.dark-mode { background-color: #1e1e1e; color: #d4d4d4; }
+      .dark-mode article { background-color: #252526; border-color: #333; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+      .dark-mode h1, .dark-mode h2, .dark-mode h3 { color: #9cdcfe; }
+      .dark-mode a { color: #569cd6; }
+      .dark-mode hr.gm-merged-sep { border-top-color: #444; }
+      .dark-mode .gm-merged-label { opacity: 0.6; }
+    `,
+    THEME_TOGGLE: `
+      #gm-theme-toggle {
+        position: fixed; top: 16px; right: 16px;
+        z-index: 2147483647;
+        background: #f0f0f0; /* Light mode default */
+        border: 1px solid #ccc; border-radius: 50%;
+        width: 40px; height: 40px;
+        cursor: pointer; font-size: 22px; /* Keep font-size for alignment, even if no text */
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        transition: background-color 0.3s, border-color 0.3s, transform 0.2s;
+      }
+      #gm-theme-toggle:hover {
+        transform: scale(1.1);
+      }
+      .dark-mode #gm-theme-toggle {
+        background: #333; /* Dark mode */
+        border-color: #555;
+      }
+      #gm-theme-toggle.system-icon {
+        background: linear-gradient(45deg, #333 49%, #f0f0f0 51%); /* Dark to Light */
+        color: transparent; /* Ensure no text shows */
+      }
+      #gm-theme-toggle.system-icon:hover {
+        transform: scale(1.1) rotate(45deg);
+      }
     `,
     INFO_POPUP: `
       .gm-info-popup {
@@ -457,16 +492,65 @@
    * @returns {string} A full HTML document string.
    */
   function buildMergedHtmlDocument(titleText, headExtras, mergedBodyHtml) {
+    const themeScript = `
+      <script>
+        (function() {
+          const body = document.body;
+          const toggleBtn = document.getElementById('gm-theme-toggle');
+          const storageKey = 'golem_merger_theme';
+          const themes = ['light', 'dark', 'system'];
+
+          function applyTheme(theme) {
+            body.classList.remove('dark-mode'); // Reset first
+            toggleBtn.classList.remove('system-icon');
+
+            let themeToApply = theme;
+
+            if (theme === 'system') {
+              const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+              themeToApply = prefersDark ? 'dark' : 'light';
+              toggleBtn.classList.add('system-icon');
+            }
+
+            if (themeToApply === 'dark') {
+              body.classList.add('dark-mode');
+            }
+            localStorage.setItem(storageKey, theme);
+          }
+
+          // Set initial theme
+          let currentTheme = localStorage.getItem(storageKey) || 'system';
+          if (!themes.includes(currentTheme)) currentTheme = 'system';
+          applyTheme(currentTheme);
+
+          // Handle toggle click
+          toggleBtn.addEventListener('click', () => {
+            let currentIndex = themes.indexOf(localStorage.getItem(storageKey) || 'system');
+            if (!themes.includes(themes[currentIndex])) currentIndex = 2; // default to system
+            const nextIndex = (currentIndex + 1) % themes.length;
+            const nextTheme = themes[nextIndex];
+            applyTheme(nextTheme);
+          });
+        })();
+      </script>
+    `;
+
+    const themeToggleHtml = '<button id="gm-theme-toggle" title="Toggle Theme"></button>';
+
     return `<!doctype html>
 <html lang="de">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escapeHtml(titleText || 'Merged Article')}</title>
-<style>${STYLES.NEW_TAB_VIEW}${STYLES.MERGED_CONTENT}</style>
+<style>${STYLES.NEW_TAB_VIEW}${STYLES.MERGED_CONTENT}${STYLES.DARK_MODE}${STYLES.THEME_TOGGLE}</style>
 ${headExtras || ''}
 </head>
-<body><article>${mergedBodyHtml}</article></body>
+<body>
+<article>${mergedBodyHtml}</article>
+${themeToggleHtml}
+${themeScript}
+</body>
 </html>`;
   }
 

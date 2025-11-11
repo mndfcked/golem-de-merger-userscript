@@ -6,6 +6,7 @@ A userscript that enhances [Golem.de](https://www.golem.de/) by merging its pagi
 
 ## Features
 
+- **Dark Mode & Theme Toggle**: When opening an article in a new tab, a theme toggle button is available. This allows you to switch between Light, Dark, or System (follows OS preference) themes, with your choice being persisted.
 - **Merge Pages**: Combines all pages of an article into one.
 - **Multiple Merge Modes**:
   - **In-place**: Merges content directly into the current page.
